@@ -1,0 +1,17 @@
+{
+  "id": "./",
+  "name": "Pronto Atleta - Preparazione Concorsi",
+  "short_name": "Pronto Atleta",
+  "description": "Allenamento fisico + quiz per concorsi militari e forze dell'ordine",
+  "lang": "it",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a1a0a",
+  "theme_color": "#1a2e1a",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"}
+  ]
+}
