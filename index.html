@@ -26,6 +26,8 @@ button:disabled{opacity:.6;cursor:default}
 #msg{min-height:22px;margin-top:12px;font-size:14px;color:#fca5a5}
 #msg.ok{color:#86efac}
 .small{margin-top:14px;font-size:12px;opacity:.6}
+#inst{background:transparent;border:2px solid #B8A054;color:#B8A054;margin-top:10px}
+.hint{margin-top:10px;font-size:12px;opacity:.75;line-height:1.35}
 </style>
 </head>
 <body class="notranslate">
@@ -38,6 +40,8 @@ button:disabled{opacity:.6;cursor:default}
   <input id="code" placeholder="PRONTO-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false">
   <button id="go" type="button">ENTRA</button>
   <div id="msg" role="status"></div>
+  <button id="inst" type="button" hidden>INSTALLA L’APP</button>
+  <div class="hint" id="hint">Per installare l’app su Android: apri questo link con <b>Chrome</b> (non in modalità incognito e non dentro WhatsApp), tocca i tre puntini in alto a destra e scegli <b>Installa app</b>.</div>
   <div class="small">Serve una connessione internet al primo accesso.</div>
 </div>
 
@@ -48,6 +52,11 @@ button:disabled{opacity:.6;cursor:default}
   var OFFLINE_DAYS = 14;      // senza internet l'app si apre per al massimo 14 giorni dall'ultimo controllo
   var APP_CACHE = "pa-app", APP_KEY = "./__app__";
 
+  function standalone(){ return (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true; }
+  var instBtn = document.getElementById("inst");
+  if(standalone()){ var h0 = document.getElementById("hint"); if(h0) h0.hidden = true; }
+  window.addEventListener("beforeinstallprompt", function(e){ e.preventDefault(); window.__paInstall = e; if(instBtn && !standalone()) instBtn.hidden = false; });
+  if(instBtn) instBtn.addEventListener("click", function(){ var e = window.__paInstall; if(!e) return; e.prompt(); if(e.userChoice) e.userChoice.then(function(){ instBtn.hidden = true; window.__paInstall = null; }); });
   var msg = document.getElementById("msg"), btn = document.getElementById("go"), inp = document.getElementById("code");
 
   function say(t, ok){ msg.textContent = t || ""; msg.className = ok ? "ok" : ""; }
