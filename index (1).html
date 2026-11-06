@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="it" translate="no" class="notranslate">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="google" content="notranslate">
+<title>Pronto Atleta</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a2e1a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pronto Atleta">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0a1a0a;color:#f1efe4;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.card{width:92%;max-width:400px;background:#1a2e1a;border:2px solid #B8A054;border-radius:20px;padding:28px 22px;text-align:center}
+.card img{width:96px;height:96px;border-radius:18px}
+h1{margin:12px 0 4px;font-size:30px;font-weight:900;letter-spacing:1px;color:#B8A054}
+.sub{margin:0 0 14px;font-size:14px;font-weight:600;color:#DC2626;line-height:1.3}
+.res{margin:6px 0 12px;font-size:16px;font-weight:800;letter-spacing:2px;color:#f59e0b}
+label{display:block;margin-bottom:6px;font-size:14px;opacity:.85}
+input{width:100%;padding:15px;border-radius:10px;border:1px solid #B8A054;background:#000;color:#fff;font-size:18px;text-align:center;text-transform:uppercase}
+button{width:100%;margin-top:14px;padding:15px;border:0;border-radius:10px;background:#B8A054;color:#0a1a0a;font-size:18px;font-weight:800;cursor:pointer}
+button:disabled{opacity:.6;cursor:default}
+#msg{min-height:22px;margin-top:12px;font-size:14px;color:#fca5a5}
+#msg.ok{color:#86efac}
+.small{margin-top:14px;font-size:12px;opacity:.6}
+#inst{background:transparent;border:2px solid #B8A054;color:#B8A054;margin-top:10px}
+.hint{margin-top:10px;font-size:12px;opacity:.75;line-height:1.35}
+</style>
+</head>
+<body class="notranslate">
+<div class="card" id="card">
+  <img src="icon-192.png" alt="Pronto Atleta">
+  <h1>PRONTO ATLETA</h1>
+  <p class="sub">App per preparazione fisica + quiz Concorsi Forze Armate e di Polizia</p>
+  <div class="res">ACCESSO RISERVATO</div>
+  <div id="ios" class="hint" style="font-size:14px;opacity:1;margin:0 0 12px;text-align:left" hidden>
+    <b>Prima installa l’app sul tuo iPhone:</b>
+    <ol style="margin:8px 0 8px 18px;padding:0">
+      <li>Apri questo link con <b>Safari</b>.</li>
+      <li>Tocca il tasto <b>Condividi</b> (il quadrato con la freccia in su).</li>
+      <li>Scegli <b>Aggiungi alla schermata Home</b> e conferma.</li>
+      <li>Apri l’app dall’<b>icona sulla Home</b> e inserisci qui il tuo codice.</li>
+    </ol>
+    <a href="#" id="skip" style="color:#B8A054">Continuo senza installare</a>
+  </div>
+  <div id="form">
+  <label for="code">Codice fornito dal Team Pronto Atleta</label>
+  <input id="code" placeholder="PRONTO-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false">
+  <button id="go" type="button">ENTRA</button>
+  </div>
+  <div id="msg" role="status"></div>
+  <button id="inst" type="button" hidden>INSTALLA L’APP</button>
+  <div class="hint" id="hint">Per installare l’app su Android: apri questo link con <b>Chrome</b> (non in modalità incognito e non dentro WhatsApp), tocca i tre puntini in alto a destra e scegli <b>Installa app</b>.</div>
+  <div class="small">Serve una connessione internet al primo accesso.</div>
+</div>
+
+<script>
+(function(){
+  var FN_URL = "https://kgqousgaumploaaeomea.supabase.co/functions/v1/dynamic-service";
+  var KEY    = "sb_publishable_g0HFQhK_a87rRnehKJo52g_qPGsWoel";
+  var OFFLINE_DAYS = 14;      // senza internet l'app si apre per al massimo 14 giorni dall'ultimo controllo
+  var APP_CACHE = "pa-app", APP_KEY = "./__app__";
+
+  function standalone(){ return (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true; }
+  var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  var hasCode = false; try{ hasCode = !!localStorage.getItem("pa_gate_code"); }catch(e){}
+  var iosBox = document.getElementById("ios"), formBox = document.getElementById("form"), hintBox = document.getElementById("hint");
+  if(isIOS && !standalone() && !hasCode){ iosBox.hidden = false; formBox.hidden = true; if(hintBox) hintBox.hidden = true; }
+  if(isIOS && hintBox) hintBox.hidden = true;
+  document.getElementById("skip").addEventListener("click", function(e){ e.preventDefault(); iosBox.hidden = true; formBox.hidden = false; });
+  var instBtn = document.getElementById("inst");
+  if(standalone()){ var h0 = document.getElementById("hint"); if(h0) h0.hidden = true; }
+  window.addEventListener("beforeinstallprompt", function(e){ e.preventDefault(); window.__paInstall = e; if(instBtn && !standalone()) instBtn.hidden = false; });
+  if(instBtn) instBtn.addEventListener("click", function(){ var e = window.__paInstall; if(!e) return; e.prompt(); if(e.userChoice) e.userChoice.then(function(){ instBtn.hidden = true; window.__paInstall = null; }); });
+  var msg = document.getElementById("msg"), btn = document.getElementById("go"), inp = document.getElementById("code");
+
+  function say(t, ok){ msg.textContent = t || ""; msg.className = ok ? "ok" : ""; }
+  function ls(k, v){ try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k, v); }catch(e){ return null; } }
+
+  function deviceId(){
+    var d = ls("pa_gate_device");
+    if(!d){
+      d = (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
+        : "d-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 12);
+      ls("pa_gate_device", d);
+    }
+    return d;
+  }
+
+  var REASONS = {
+    invalid: "Codice non valido. Controlla di averlo scritto per intero.",
+    revoked: "Questo codice è stato disattivato. Contatta il Team Pronto Atleta.",
+    expired: "Questo codice è scaduto. Contatta il Team Pronto Atleta.",
+    device_limit: "Questo codice è già stato usato su un altro dispositivo. Contatta il Team Pronto Atleta.",
+    file_missing: "Servizio non disponibile al momento. Riprova più tardi.",
+    error: "Errore temporaneo. Riprova tra poco."
+  };
+
+  function openApp(html){
+    ls("pronto_atleta_activated", "true");   // sblocca la schermata interna dell'app
+    document.open(); document.write(html); document.close();
+  }
+
+  function saveApp(html){
+    try{
+      if(!("caches" in window)) return Promise.resolve();
+      return caches.open(APP_CACHE).then(function(c){
+        return c.put(APP_KEY, new Response(html, {headers:{"Content-Type":"text/html"}}));
+      }).catch(function(){});
+    }catch(e){ return Promise.resolve(); }
+  }
+
+  function loadSaved(){
+    if(!("caches" in window)) return Promise.resolve(null);
+    return caches.open(APP_CACHE).then(function(c){ return c.match(APP_KEY); })
+      .then(function(r){ return r ? r.text() : null; }).catch(function(){ return null; });
+  }
+
+  function ask(code){
+    return fetch(FN_URL, {
+      method: "POST",
+      headers: {"Content-Type":"application/json", "apikey": KEY, "Authorization": "Bearer " + KEY},
+      body: JSON.stringify({code: code, device: deviceId()})
+    }).then(function(r){ return r.json(); });
+  }
+
+  function submit(code){
+    code = (code || "").trim().toUpperCase();
+    if(!code){ say("Inserisci il codice."); return; }
+    btn.disabled = true; say("Verifica in corso...", true);
+    ask(code).then(function(res){
+      if(res && res.ok && res.html){
+        ls("pa_gate_code", code); ls("pa_gate_last", String(Date.now()));
+        say("Accesso consentito.", true);
+        saveApp(res.html).then(function(){ openApp(res.html); });
+      } else {
+        if(res && (res.reason==="revoked" || res.reason==="expired" || res.reason==="invalid" || res.reason==="device_limit")){
+          ls("pa_gate_code", ""); ls("pa_gate_last", "");
+          if("caches" in window) caches.delete(APP_CACHE);
+        }
+        say(REASONS[(res && res.reason)] || REASONS.error); btn.disabled = false;
+      }
+    }).catch(function(){
+      say("Nessuna connessione. Controlla internet e riprova."); btn.disabled = false;
+    });
+  }
+
+  btn.addEventListener("click", function(){ submit(inp.value); });
+  inp.addEventListener("keydown", function(e){ if(e.key==="Enter") submit(inp.value); });
+
+  // Accessi successivi: ricontrolla il codice online; senza internet usa la copia salvata (max 14 giorni)
+  var saved = ls("pa_gate_code");
+  var qs = new URLSearchParams(location.search).get("code");
+  if(qs) inp.value = qs.toUpperCase();
+
+  if(saved){
+    inp.value = saved; btn.disabled = true; say("Controllo accesso...", true);
+    ask(saved).then(function(res){
+      if(res && res.ok && res.html){
+        ls("pa_gate_last", String(Date.now()));
+        saveApp(res.html).then(function(){ openApp(res.html); });
+      } else {
+        ls("pa_gate_code", ""); ls("pa_gate_last", "");
+        if("caches" in window) caches.delete(APP_CACHE);
+        try{ localStorage.removeItem("pronto_atleta_activated"); }catch(e){}
+        say(REASONS[(res && res.reason)] || REASONS.error); btn.disabled = false;
+      }
+    }).catch(function(){
+      var last = parseInt(ls("pa_gate_last") || "0", 10);
+      if(last && (Date.now() - last) < OFFLINE_DAYS*86400000){
+        loadSaved().then(function(h){
+          if(h){ openApp(h); } else { say("Nessuna connessione. Riprova online."); btn.disabled = false; }
+        });
+      } else {
+        say("Nessuna connessione. Collegati a internet per riaccedere."); btn.disabled = false;
+      }
+    });
+  }
+
+  if("serviceWorker" in navigator){
+    window.addEventListener("load", function(){ navigator.serviceWorker.register("./sw.js").catch(function(){}); });
+  }
+})();
+</script>
+</body>
+</html>
