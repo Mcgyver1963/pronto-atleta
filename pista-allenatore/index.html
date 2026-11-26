@@ -141,7 +141,7 @@ button:disabled{opacity:.6;cursor:default}
           ls("pa_pistacoach_gate_code", ""); ls("pa_pistacoach_gate_last", "");
           if("caches" in window) caches.delete(APP_CACHE);
         }
-        say(REASONS[(res && res.reason)] || REASONS.error); btn.disabled = false;
+        say((REASONS[(res && res.reason)] || REASONS.error) + ((res && res.reason==='error' && res.detail) ? ' [' + String(res.detail).slice(0,160) + ']' : '')); btn.disabled = false;
       }
     }).catch(function(){
       say("Nessuna connessione. Controlla internet e riprova."); btn.disabled = false;
@@ -166,7 +166,7 @@ button:disabled{opacity:.6;cursor:default}
         ls("pa_pistacoach_gate_code", ""); ls("pa_pistacoach_gate_last", "");
         if("caches" in window) caches.delete(APP_CACHE);
         try{ localStorage.removeItem("pronto_pistacoach_activated"); }catch(e){}
-        say(REASONS[(res && res.reason)] || REASONS.error); btn.disabled = false;
+        say((REASONS[(res && res.reason)] || REASONS.error) + ((res && res.reason==='error' && res.detail) ? ' [' + String(res.detail).slice(0,160) + ']' : '')); btn.disabled = false;
       }
     }).catch(function(){
       var last = parseInt(ls("pa_pistacoach_gate_last") || "0", 10);
