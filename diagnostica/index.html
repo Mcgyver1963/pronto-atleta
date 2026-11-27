@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Diagnostica codice</title>
+<style>body{font-family:system-ui,sans-serif;background:#0a1a0a;color:#f1efe4;padding:16px;max-width:520px;margin:auto}
+input,select,button{width:100%;padding:14px;margin:6px 0;font-size:16px;border-radius:8px;border:1px solid #B8A054;background:#000;color:#fff;box-sizing:border-box}
+button{background:#B8A054;color:#0a1a0a;font-weight:800}pre{white-space:pre-wrap;word-break:break-all;background:#111;padding:12px;border-radius:8px;font-size:12px}</style></head><body>
+<h2>Diagnostica codice</h2>
+<p>Scrivi il codice, scegli l'app e premi PROVA. Poi mandami tutto il testo che compare sotto.</p>
+<input id="c" placeholder="PRONTO-XXXX-XXXX-XXXX" autocapitalize="characters">
+<select id="a"><option value="pistacoach">pistacoach (allenatore)</option><option value="pista">pista (atleta)</option><option value="corsa">corsa</option><option value="">nessuna (app generica)</option></select>
+<button id="go">PROVA</button><pre id="o">in attesa...</pre>
+<script>
+var FN="https://kgqousgaumploaaeomea.supabase.co/functions/v1/dynamic-service",KEY="sb_publishable_g0HFQhK_a87rRnehKJo52g_qPGsWoel";
+document.getElementById("go").onclick=function(){
+ var o=document.getElementById("o");o.textContent="chiamata in corso...";
+ var b={code:document.getElementById("c").value.trim().toUpperCase(),device:"diagnostica-"+Date.now()};
+ var a=document.getElementById("a").value;if(a)b.app=a;
+ fetch(FN,{method:"POST",headers:{"Content-Type":"application/json",apikey:KEY,Authorization:"Bearer "+KEY},body:JSON.stringify(b)})
+ .then(function(r){return r.text().then(function(t){return{s:r.status,t:t}})})
+ .then(function(x){var t=x.t;if(t.length>600)t=t.slice(0,600)+" ... [troncato, lunghezza "+x.t.length+"]";o.textContent="STATO HTTP: "+x.s+"\nAPP: "+(a||"-")+"\nRISPOSTA:\n"+t})
+ .catch(function(e){o.textContent="ERRORE DI RETE: "+e})};
+</script></body></html>
