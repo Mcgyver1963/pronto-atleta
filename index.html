@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="google" content="notranslate">
-<title>Pronto Atleta</title>
+<title>Pronto Atleta Salto in Lungo Allenatore</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1a2e1a">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Pronto Atleta">
+<meta name="apple-mobile-web-app-title" content="PA Salto All.">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
 *{box-sizing:border-box}
@@ -32,9 +32,9 @@ button:disabled{opacity:.6;cursor:default}
 </head>
 <body class="notranslate">
 <div class="card" id="card">
-  <img src="icon-192.png" alt="Pronto Atleta">
-  <h1>PRONTO ATLETA</h1>
-  <p class="sub">App per preparazione fisica + quiz Concorsi Forze Armate e di Polizia</p>
+  <img src="icon-192.png" alt="Pronto Atleta Salto in Lungo Allenatore">
+  <h1>PRONTO ATLETA <i style="color:#fff;font-weight:400;font-size:22px">Salto</i></h1>
+  <p class="sub">Versione allenatore · salto in lungo</p>
   <div class="res">ACCESSO RISERVATO</div>
   <div id="ios" class="hint" style="font-size:14px;opacity:1;margin:0 0 12px;text-align:left" hidden>
     <b>Prima installa l’app sul tuo iPhone:</b>
@@ -54,7 +54,7 @@ button:disabled{opacity:.6;cursor:default}
   <div id="msg" role="status"></div>
   <button id="inst" type="button" hidden>INSTALLA L’APP</button>
   <div class="hint" id="hint">Per installare l’app su Android: apri questo link con <b>Chrome</b> (non in modalità incognito e non dentro WhatsApp), tocca i tre puntini in alto a destra e scegli <b>Installa app</b>.</div>
-  <div class="small">Serve una connessione internet al primo accesso.</div>
+  <div class="small">Serve una connessione internet al primo accesso. · Allenatore · Versione 1.0</div>
 </div>
 
 <script>
@@ -62,11 +62,11 @@ button:disabled{opacity:.6;cursor:default}
   var FN_URL = "https://kgqousgaumploaaeomea.supabase.co/functions/v1/dynamic-service";
   var KEY    = "sb_publishable_g0HFQhK_a87rRnehKJo52g_qPGsWoel";
   var OFFLINE_DAYS = 14;      // senza internet l'app si apre per al massimo 14 giorni dall'ultimo controllo
-  var APP_CACHE = "pa-app", APP_KEY = "./__app__";
+  var APP_CACHE = "pa-saltocoach-app", APP_KEY = "./__app__";
 
   function standalone(){ return (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true; }
   var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-  var hasCode = false; try{ hasCode = !!localStorage.getItem("pa_gate_code"); }catch(e){}
+  var hasCode = false; try{ hasCode = !!localStorage.getItem("pa_saltocoach_gate_code"); }catch(e){}
   var iosBox = document.getElementById("ios"), formBox = document.getElementById("form"), hintBox = document.getElementById("hint");
   if(isIOS && !standalone() && !hasCode){ iosBox.hidden = false; formBox.hidden = true; if(hintBox) hintBox.hidden = true; }
   if(isIOS && hintBox) hintBox.hidden = true;
@@ -81,11 +81,11 @@ button:disabled{opacity:.6;cursor:default}
   function ls(k, v){ try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k, v); }catch(e){ return null; } }
 
   function deviceId(){
-    var d = ls("pa_gate_device");
+    var d = ls("pa_saltocoach_gate_device");
     if(!d){
       d = (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
         : "d-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 12);
-      ls("pa_gate_device", d);
+      ls("pa_saltocoach_gate_device", d);
     }
     return d;
   }
@@ -100,7 +100,7 @@ button:disabled{opacity:.6;cursor:default}
   };
 
   function openApp(html){
-    ls("pronto_atleta_activated", "true");   // sblocca la schermata interna dell'app
+    ls("pronto_saltocoach_activated", "true");   // sblocca la schermata interna dell'app
     document.open(); document.write(html); document.close();
   }
 
@@ -123,7 +123,7 @@ button:disabled{opacity:.6;cursor:default}
     return fetch(FN_URL, {
       method: "POST",
       headers: {"Content-Type":"application/json", "apikey": KEY, "Authorization": "Bearer " + KEY},
-      body: JSON.stringify({code: code, device: deviceId()})
+      body: JSON.stringify({code: code, device: deviceId(), app: "saltocoach"})
     }).then(function(r){ return r.json(); });
   }
 
@@ -133,15 +133,15 @@ button:disabled{opacity:.6;cursor:default}
     btn.disabled = true; say("Verifica in corso...", true);
     ask(code).then(function(res){
       if(res && res.ok && res.html){
-        ls("pa_gate_code", code); ls("pa_gate_last", String(Date.now()));
+        ls("pa_saltocoach_gate_code", code); ls("pa_saltocoach_gate_last", String(Date.now()));
         say("Accesso consentito.", true);
         saveApp(res.html).then(function(){ openApp(res.html); });
       } else {
         if(res && (res.reason==="revoked" || res.reason==="expired" || res.reason==="invalid" || res.reason==="device_limit")){
-          ls("pa_gate_code", ""); ls("pa_gate_last", "");
+          ls("pa_saltocoach_gate_code", ""); ls("pa_saltocoach_gate_last", "");
           if("caches" in window) caches.delete(APP_CACHE);
         }
-        say(REASONS[(res && res.reason)] || REASONS.error); btn.disabled = false;
+        say((REASONS[(res && res.reason)] || REASONS.error) + ((res && res.reason==='error' && res.detail) ? ' [' + String(res.detail).slice(0,160) + ']' : '')); btn.disabled = false;
       }
     }).catch(function(){
       say("Nessuna connessione. Controlla internet e riprova."); btn.disabled = false;
@@ -152,7 +152,7 @@ button:disabled{opacity:.6;cursor:default}
   inp.addEventListener("keydown", function(e){ if(e.key==="Enter") submit(inp.value); });
 
   // Accessi successivi: ricontrolla il codice online; senza internet usa la copia salvata (max 14 giorni)
-  var saved = ls("pa_gate_code");
+  var saved = ls("pa_saltocoach_gate_code");
   var qs = new URLSearchParams(location.search).get("code");
   if(qs) inp.value = qs.toUpperCase();
 
@@ -160,16 +160,16 @@ button:disabled{opacity:.6;cursor:default}
     inp.value = saved; btn.disabled = true; say("Controllo accesso...", true);
     ask(saved).then(function(res){
       if(res && res.ok && res.html){
-        ls("pa_gate_last", String(Date.now()));
+        ls("pa_saltocoach_gate_last", String(Date.now()));
         saveApp(res.html).then(function(){ openApp(res.html); });
       } else {
-        ls("pa_gate_code", ""); ls("pa_gate_last", "");
+        ls("pa_saltocoach_gate_code", ""); ls("pa_saltocoach_gate_last", "");
         if("caches" in window) caches.delete(APP_CACHE);
-        try{ localStorage.removeItem("pronto_atleta_activated"); }catch(e){}
-        say(REASONS[(res && res.reason)] || REASONS.error); btn.disabled = false;
+        try{ localStorage.removeItem("pronto_saltocoach_activated"); }catch(e){}
+        say((REASONS[(res && res.reason)] || REASONS.error) + ((res && res.reason==='error' && res.detail) ? ' [' + String(res.detail).slice(0,160) + ']' : '')); btn.disabled = false;
       }
     }).catch(function(){
-      var last = parseInt(ls("pa_gate_last") || "0", 10);
+      var last = parseInt(ls("pa_saltocoach_gate_last") || "0", 10);
       if(last && (Date.now() - last) < OFFLINE_DAYS*86400000){
         loadSaved().then(function(h){
           if(h){ openApp(h); } else { say("Nessuna connessione. Riprova online."); btn.disabled = false; }
